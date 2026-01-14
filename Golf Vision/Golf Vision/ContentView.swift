@@ -17,7 +17,7 @@ struct ContentView: View {
     var body: some View {
         RealityView { content in
             // Load and add the golf club model from the bundle
-            if let modelEntity = try? await Entity.load(named: "Golf_club2") {
+            if let modelEntity = try? await Entity(named: "Golf_club", in: realityKitContentBundle) {
                 modelEntity.name = "GolfClub"
                 
                 // Adjust scale if needed (you can modify this)
