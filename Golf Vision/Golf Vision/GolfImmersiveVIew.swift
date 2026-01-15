@@ -1,52 +1,47 @@
-//
-//  GolfImmersiveVIew.swift
-//  Golf Vision
-//
-//  Created by Luca Langella 1 on 14/01/26.
-//
-
 import SwiftUI
 import RealityKit
-import RealityKitContent // If using packages
 
 struct GolfImmersiveView: View {
-    @Bindable var config: GolfConfig
+    // We no longer need the 'config' variable since we are hardcoding values
     
-    // We keep a reference to the loaded entity to update it
-    @State private var clubEntity: Entity?
-
     var body: some View {
         RealityView { content in
-            // 1. Create the Hand Anchor (Right Hand, Palm)
+            // 1. Create Hand Anchor (Right Hand)
             let handAnchor = AnchorEntity(.hand(.right, location: .palm))
             
-            // 2. Load your "Golf_club" model
-            // Note: If "Golf_club" isn't found, this will fail silently.
-            // Ensure the name matches your file exactly.
+            // 2. Load the Golf Club
             if let club = try? await Entity(named: "Golf_club") {
-                clubEntity = club
                 
-                // Add club as a child of the hand anchor
+                // --- APPLY YOUR CALIBRATED VALUES HERE ---
+                
+                // Position (Meters)
+                club.position = SIMD3<Float>(0.022, 0.029, -0.015)
+                
+                // Rotation (Degrees converted to Quaternion)
+                // Values: X: -105.6, Y: -172.0, Z: 79.1
+                club.orientation = convertDegreesToQuaternion(x: -105.6, y: -172.0, z: 79.1)
+                
+                // ----------------------------------------
+                
                 handAnchor.addChild(club)
             } else {
-                // Fallback: A red stick if model is missing
-                let mesh = MeshResource.generateBox(size: [0.05, 1.0, 0.05])
-                let material = SimpleMaterial(color: .red, isMetallic: false)
-                let placeholder = ModelEntity(mesh: mesh, materials: [material])
-                clubEntity = placeholder
-                handAnchor.addChild(placeholder)
+                print("Error: 'Golf_club' model not found in app bundle.")
             }
             
-            // 3. Add anchor to scene
+            // 3. Add to Scene
             content.add(handAnchor)
-            
-        } update: { content in
-            // 4. REAL-TIME UPDATES
-            // Every time 'config' changes, this block runs
-            if let club = clubEntity {
-                club.position = config.positionVector
-                club.orientation = config.rotationQuaternion
-            }
         }
+    }
+    
+    // Helper function to keep the math clean
+    func convertDegreesToQuaternion(x: Float, y: Float, z: Float) -> simd_quatf {
+        let angleX = x * .pi / 180
+        let angleY = y * .pi / 180
+        let angleZ = z * .pi / 180
+        
+        // Create quaternion (Order: Z, Y, X)
+        return simd_quatf(angle: angleX, axis: [1, 0, 0]) *
+               simd_quatf(angle: angleY, axis: [0, 1, 0]) *
+               simd_quatf(angle: angleZ, axis: [0, 0, 1])
     }
 }
