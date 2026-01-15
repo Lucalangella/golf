@@ -19,6 +19,7 @@
 		BAF72D5E2F0FFEC80009C509 /* Exceptions for "Golf Vision" folder in "Golf Vision" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Golf_Ball.usdz,
 				Info.plist,
 			);
 			target = BAF72D4F2F0FFEC60009C509 /* Golf Vision */;
